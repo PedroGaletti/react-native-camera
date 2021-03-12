@@ -36,6 +36,7 @@ private static ReactApplicationContext mScopedContext;
         put("Mode", getFaceDetectionModeConstants());
         put("Landmarks", getFaceDetectionLandmarksConstants());
         put("Classifications", getFaceDetectionClassificationsConstants());
+        put("Contours", getFaceDetectionContoursConstants());
       }
 
       private Map<String, Object> getFaceDetectionModeConstants() {
@@ -61,6 +62,15 @@ private static ReactApplicationContext mScopedContext;
           {
             put("all", RNFaceDetector.ALL_LANDMARKS);
             put("none", RNFaceDetector.NO_LANDMARKS);
+          }
+        });
+      }
+
+      private Map<String, Object> getFaceDetectionContoursConstants() {
+        return Collections.unmodifiableMap(new HashMap<String, Object>() {
+          {
+            put("all", RNFaceDetector.ALL_CONTOURS);
+            put("none", RNFaceDetector.NO_CONTOURS);
           }
         });
       }

@@ -79,6 +79,7 @@ type ImageType = Readonly<{
 
 type FaceDetectionClassifications = Readonly<{ all: any; none: any }>;
 type FaceDetectionLandmarks = Readonly<{ all: any; none: any }>;
+type FaceDetectionContours = Readonly<{ all: any; none: any }>;
 type FaceDetectionMode = Readonly<{ fast: any; accurate: any }>;
 type GoogleVisionBarcodeType = Readonly<{
   CODE_128: any;
@@ -128,6 +129,7 @@ export interface Constants {
   FaceDetection: {
     Classifications: FaceDetectionClassifications;
     Landmarks: FaceDetectionLandmarks;
+    Contours: FaceDetectionContours,
     Mode: FaceDetectionMode;
   };
   GoogleVisionBarcodeDetection: {
@@ -240,6 +242,7 @@ export interface RNCameraProps {
   onFaceDetectionError?(response: { isOperational: boolean }): void;
   faceDetectionMode?: keyof FaceDetectionMode;
   faceDetectionLandmarks?: keyof FaceDetectionLandmarks;
+  faceDetectionContours?: keyof FaceDetectionContours;
   faceDetectionClassifications?: keyof FaceDetectionClassifications;
   trackingEnabled?: boolean;
 
@@ -496,6 +499,7 @@ export class RNCamera extends Component<RNCameraProps & ViewProperties> {
 interface DetectionOptions {
   mode?: keyof FaceDetectionMode;
   detectLandmarks?: keyof FaceDetectionLandmarks;
+  detectContours?: keyof FaceDetectionContours;
   runClassifications?: keyof FaceDetectionClassifications;
 }
 

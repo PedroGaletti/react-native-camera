@@ -3,15 +3,28 @@ package org.reactnative.facedetector;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.ReadableArray;
 import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceContour;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class FaceDetectorUtils {
   private static final String[] landmarkNames = {
           "bottomMouthPosition", "leftCheekPosition", "leftEarPosition",
           "leftEyePosition", "leftMouthPosition", "noseBasePosition", "rightCheekPosition",
           "rightEarPosition", "rightEyePosition", "rightMouthPosition"
+  };
+
+  private static final String[] contourNames = {
+    "faceOval", "leftEyebrowTop", "leftEyebrowBottom",
+    "rightEyebrowTop", "rightEyebrowBottom", "leftEye", "rightEye",
+    "upperLipTop", "upperLipBottom", "lowerLipTop", "lowerLipBottom",
+    "noseBridge", "noseBottom"
   };
 
   public static WritableMap serializeFace(FirebaseVisionFace face) {
@@ -27,7 +40,6 @@ public class FaceDetectorUtils {
       id = face.getTrackingId();
     }
 
-
     encodedFace.putInt("faceID", id);
     encodedFace.putDouble("rollAngle", face.getHeadEulerAngleZ());
     encodedFace.putDouble("yawAngle", face.getHeadEulerAngleY());
@@ -36,6 +48,7 @@ public class FaceDetectorUtils {
     if (face.getSmilingProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
       encodedFace.putDouble("smilingProbability", face.getSmilingProbability());
     }
+
     if (face.getLeftEyeOpenProbability() != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
       encodedFace.putDouble("leftEyeOpenProbability", face.getLeftEyeOpenProbability());
     }
@@ -58,6 +71,30 @@ public class FaceDetectorUtils {
       FirebaseVisionFaceLandmark landmark = face.getLandmark(landmarks[i]);
       if (landmark != null) {
         encodedFace.putMap(landmarkNames[i], mapFromPoint(landmark.getPosition(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
+      }
+    }
+
+    // If contour detection was enabled:
+    int[] contours = {
+      FirebaseVisionFaceContour.FACE,
+      FirebaseVisionFaceContour.LEFT_EYEBROW_TOP,
+      FirebaseVisionFaceContour.LEFT_EYEBROW_BOTTOM,
+      FirebaseVisionFaceContour.RIGHT_EYEBROW_TOP,
+      FirebaseVisionFaceContour.RIGHT_EYEBROW_BOTTOM,
+      FirebaseVisionFaceContour.LEFT_EYE,
+      FirebaseVisionFaceContour.RIGHT_EYE,
+      FirebaseVisionFaceContour.UPPER_LIP_TOP,
+      FirebaseVisionFaceContour.UPPER_LIP_BOTTOM,
+      FirebaseVisionFaceContour.LOWER_LIP_TOP,
+      FirebaseVisionFaceContour.LOWER_LIP_BOTTOM,
+      FirebaseVisionFaceContour.NOSE_BRIDGE,
+      FirebaseVisionFaceContour.NOSE_BOTTOM,
+    };
+
+    for (int c = 0; c < contours.length; ++c) {
+      FirebaseVisionFaceContour contour = face.getContour(contours[c]);
+      if (contour != null) {
+        encodedFace.putArray(contourNames[c], arrayFromPoint(contour.getPoints(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
       }
     }
 
@@ -113,6 +150,14 @@ public class FaceDetectorUtils {
       }
     }
 
+    for (String contourName : contourNames) {
+      ReadableArray contour = face.hasKey(contourName) ? face.getArray(contourName) : null;
+      if (contour != null) {
+        WritableArray mirroredPositions = positionsMirroredHorizontally(contour, sourceWidth, scaleX);
+        face.putArray(contourName, mirroredPositions);
+      }
+    }
+
     face.putMap("bounds", newBounds);
 
     return face;
@@ -123,6 +168,14 @@ public class FaceDetectorUtils {
     face.putDouble("yawAngle", (-face.getDouble("yawAngle") + 360) % 360);
     return face;
   }
+
+  public static WritableArray arrayFromPoint(List<FirebaseVisionPoint> points, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
+    WritableArray contoursArray = Arguments.createArray();
+    for (int z = 0; z < points.size(); z++) {
+      contoursArray.pushMap(mapFromPoint(points.get(z), scaleX, scaleY, width, height, paddingLeft, paddingTop));
+    }
+    return contoursArray;
+  };
 
   public static WritableMap mapFromPoint(FirebaseVisionPoint point, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap map = Arguments.createMap();
@@ -149,6 +202,14 @@ public class FaceDetectorUtils {
     newPosition.merge(position);
     newPosition.putDouble("x", position.getDouble("x") + translateX);
     return newPosition;
+  }
+
+  public static WritableArray positionsMirroredHorizontally(ReadableArray positions, int containerWidth, double scaleX) {
+    WritableArray newPositions = Arguments.createArray();
+    for (int z = 0; z < positions.size(); z++) {
+      newPositions.pushMap(positionMirroredHorizontally(positions.getMap(z), containerWidth, scaleX));
+    }
+    return newPositions;
   }
 
   public static WritableMap positionMirroredHorizontally(ReadableMap position, int containerWidth, double scaleX) {

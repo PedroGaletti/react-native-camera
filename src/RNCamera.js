@@ -274,6 +274,7 @@ type PropsType = typeof View.props & {
   googleVisionBarcodeMode?: number,
   whiteBalance?: number | string | {temperature: number, tint: number, redGainOffset?: number, greenGainOffset?: number, blueGainOffset?: number },
   faceDetectionLandmarks?: number,
+  faceDetectionContours?: number,
   autoFocus?: string | boolean | number,
   autoFocusPointOfInterest?: { x: number, y: number },
   faceDetectionClassifications?: number,
@@ -333,6 +334,9 @@ const CameraManager: Object = NativeModules.RNCameraManager ||
       Landmarks: {
         none: 0,
       },
+      Contours: {
+        none: 0,
+      },
       Classifications: {
         none: 0,
       },
@@ -387,6 +391,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     whiteBalance: CameraManager.WhiteBalance,
     faceDetectionMode: (CameraManager.FaceDetection || {}).Mode,
     faceDetectionLandmarks: (CameraManager.FaceDetection || {}).Landmarks,
+    faceDetectionContours: (CameraManager.FaceDetection || {}).Contours,
     faceDetectionClassifications: (CameraManager.FaceDetection || {}).Classifications,
     googleVisionBarcodeType: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeType,
     googleVisionBarcodeMode: (CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeMode,
@@ -419,6 +424,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     trackingEnabled: PropTypes.bool,
     faceDetectionMode: PropTypes.number,
     faceDetectionLandmarks: PropTypes.number,
+    faceDetectionContours: PropTypes.number,
     faceDetectionClassifications: PropTypes.number,
     barCodeTypes: PropTypes.arrayOf(PropTypes.string),
     googleVisionBarcodeType: PropTypes.number,
@@ -471,6 +477,7 @@ export default class Camera extends React.Component<PropsType, StateType> {
     googleVisionBarcodeMode: ((CameraManager.GoogleVisionBarcodeDetection || {}).BarcodeMode || {})
       .NORMAL,
     faceDetectionLandmarks: ((CameraManager.FaceDetection || {}).Landmarks || {}).none,
+    faceDetectionContours: ((CameraManager.FaceDetection || {}).Contours || {}).none,
     faceDetectionClassifications: ((CameraManager.FaceDetection || {}).Classifications || {}).none,
     permissionDialogTitle: '',
     permissionDialogMessage: '',
