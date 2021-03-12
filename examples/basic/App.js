@@ -341,6 +341,11 @@ export default class CameraScreen extends React.Component {
             ? RNCamera.Constants.FaceDetection.Landmarks.all
             : undefined
         }
+        faceDetectionContours={
+          RNCamera.Constants.FaceDetection.Contours
+            ? RNCamera.Constants.FaceDetection.Contours.all
+            : undefined
+        }
         onFacesDetected={canDetectFaces ? this.facesDetected : null}
         onTextRecognized={canDetectText ? this.textRecognized : null}
         onGoogleVisionBarcodesDetected={canDetectBarcode ? this.barcodeRecognized : null}

@@ -183,6 +183,7 @@ export const imports = tester => {
           exposure: undefined,
           faceDetectionClassifications: {all: 1, none: 0},
           faceDetectionLandmarks: {all: 1, none: 0},
+          faceDetectionContours: {all: 1, none: 0},
           faceDetectionMode: {accurate: 1, fast: 0},
           flashMode: {auto: 3, off: 0, on: 1, torch: 2},
           googleVisionBarcodeType: {

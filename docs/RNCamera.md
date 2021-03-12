@@ -596,6 +596,12 @@ Values: `RNCamera.Constants.FaceDetection.Landmarks.all` or `RNCamera.Constants.
 
 A landmark is a point of interest within a face. The left eye, right eye, and nose base are all examples of landmarks. The Face API provides the ability to find landmarks on a detected face.
 
+### `Android` `faceDetectionContours`
+
+Values: `RNCamera.Constants.FaceDetection.Contours.all` or `RNCamera.Constants.FaceDetection.Contours.none` (default)
+
+A contour is a set of points that represent the shape of a facial feature. The face oval, upper lip top, upper lib bottom, nose bottom, and nose bridge are all examples of contours.
+
 ### `faceDetectionClassifications`
 
 Values: `RNCamera.Constants.FaceDetection.Classifications.all` or `RNCamera.Constants.FaceDetection.Classifications.none` (default)

@@ -263,6 +263,11 @@ export default class CameraScreen extends React.Component {
             ? RNCamera.Constants.FaceDetection.Landmarks.all
             : undefined
         }
+        faceDetectionContours={
+          RNCamera.Constants.FaceDetection.Contours
+            ? RNCamera.Constants.FaceDetection.Contours.all
+            : undefined
+        }
         faceDetectionClassifications={
           RNCamera.Constants.FaceDetection.Classifications
             ? RNCamera.Constants.FaceDetection.Classifications.all
