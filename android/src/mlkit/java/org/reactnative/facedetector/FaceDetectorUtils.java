@@ -21,7 +21,7 @@ public class FaceDetectorUtils {
   };
 
   private static final String[] contourNames = {
-    "faceOval", "leftEyebrowTop", "leftEyebrowBottom",
+    "all", "faceOval", "leftEyebrowTop", "leftEyebrowBottom",
     "rightEyebrowTop", "rightEyebrowBottom", "leftEye", "rightEye",
     "upperLipTop", "upperLipBottom", "lowerLipTop", "lowerLipBottom",
     "noseBridge", "noseBottom"
@@ -76,6 +76,7 @@ public class FaceDetectorUtils {
 
     // If contour detection was enabled:
     int[] contours = {
+      FirebaseVisionFaceContour.ALL_POINTS,
       FirebaseVisionFaceContour.FACE,
       FirebaseVisionFaceContour.LEFT_EYEBROW_TOP,
       FirebaseVisionFaceContour.LEFT_EYEBROW_BOTTOM,
@@ -91,12 +92,16 @@ public class FaceDetectorUtils {
       FirebaseVisionFaceContour.NOSE_BOTTOM,
     };
 
+    WritableMap contoursMap = Arguments.createMap();
     for (int c = 0; c < contours.length; ++c) {
-      FirebaseVisionFaceContour contour = face.getContour(contours[c]);
-      if (contour != null) {
-        encodedFace.putArray(contourNames[c], arrayFromPoint(contour.getPoints(), scaleX, scaleY, width, height, paddingLeft, paddingTop));
+      List<FirebaseVisionPoint> contourPoints = face.getContour(contours[c]).getPoints();
+      WritableArray points = Arguments.createArray();
+      for (int j = 0; j < contourPoints.size(); ++j) {
+        points.pushMap(mapFromPoint(contourPoints.get(j), scaleX, scaleY, width, height, paddingLeft, paddingTop));
       }
+      contoursMap.putArray(contourNames[c], points);
     }
+    encodedFace.putMap("contours", contoursMap);
 
     WritableMap origin = Arguments.createMap();
     Float x = face.getBoundingBox().exactCenterX() - (face.getBoundingBox().width() / 2 );
@@ -150,12 +155,18 @@ public class FaceDetectorUtils {
       }
     }
 
-    for (String contourName : contourNames) {
-      ReadableArray contour = face.hasKey(contourName) ? face.getArray(contourName) : null;
-      if (contour != null) {
-        WritableArray mirroredPositions = positionsMirroredHorizontally(contour, sourceWidth, scaleX);
-        face.putArray(contourName, mirroredPositions);
+    ReadableMap contours = face.hasKey("contours") ? face.getMap("contours") : null;
+    if (contours != null) {
+      WritableMap newContours = Arguments.createMap();
+      for (String contourName : contourNames) {
+        ReadableArray contourPoints = contours.getArray(contourName);
+        WritableArray mirroredContourPoints = Arguments.createArray();
+        for (int j = 0; j < contourPoints.size(); ++j) {
+          mirroredContourPoints.pushMap(positionMirroredHorizontally(contourPoints.getMap(j), sourceWidth, scaleX));
+        }
+        newContours.putArray(contourName, mirroredContourPoints);
       }
+      face.putMap("contours", newContours);
     }
 
     face.putMap("bounds", newBounds);
@@ -168,14 +179,6 @@ public class FaceDetectorUtils {
     face.putDouble("yawAngle", (-face.getDouble("yawAngle") + 360) % 360);
     return face;
   }
-
-  public static WritableArray arrayFromPoint(List<FirebaseVisionPoint> points, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
-    WritableArray contoursArray = Arguments.createArray();
-    for (int z = 0; z < points.size(); z++) {
-      contoursArray.pushMap(mapFromPoint(points.get(z), scaleX, scaleY, width, height, paddingLeft, paddingTop));
-    }
-    return contoursArray;
-  };
 
   public static WritableMap mapFromPoint(FirebaseVisionPoint point, double scaleX, double scaleY, int width, int height, int paddingLeft, int paddingTop) {
     WritableMap map = Arguments.createMap();
@@ -202,14 +205,6 @@ public class FaceDetectorUtils {
     newPosition.merge(position);
     newPosition.putDouble("x", position.getDouble("x") + translateX);
     return newPosition;
-  }
-
-  public static WritableArray positionsMirroredHorizontally(ReadableArray positions, int containerWidth, double scaleX) {
-    WritableArray newPositions = Arguments.createArray();
-    for (int z = 0; z < positions.size(); z++) {
-      newPositions.pushMap(positionMirroredHorizontally(positions.getMap(z), containerWidth, scaleX));
-    }
-    return newPositions;
   }
 
   public static WritableMap positionMirroredHorizontally(ReadableMap position, int containerWidth, double scaleX) {

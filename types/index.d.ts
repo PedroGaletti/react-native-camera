@@ -381,6 +381,23 @@ export interface Phone {
   phoneType?: 'UNKNOWN' | 'Work' | 'Home' | 'Fax' | 'Mobile';
 }
 
+export interface FaceContours {
+  all: Point[];
+  face: Point[];
+  leftEye: Point[];
+  leftEyebrowBottom: Point[];
+  leftEyebrowTop: Point[];
+  lowerLipBottom: Point[];
+  lowerLipTop: Point[];
+  noseBottom: Point[];
+  noseBridge: Point[];
+  rightEye: Point[];
+  rightEyebrowBottom: Point[];
+  rightEyebrowTop: Point[];
+  upperLipBottom: Point[];
+  upperLipTop: Point[];
+}
+
 export interface Face {
   faceID?: number;
   bounds: {
@@ -403,6 +420,7 @@ export interface Face {
   noseBasePosition?: Point;
   yawAngle?: number;
   rollAngle?: number;
+  contours?: FaceContours;
 }
 
 export interface TrackedTextFeatureRecursive {
