@@ -13,6 +13,8 @@ public class RNFaceDetector {
   public static int NO_CLASSIFICATIONS = FaceDetector.NO_CLASSIFICATIONS;
   public static int ALL_LANDMARKS = FaceDetector.ALL_LANDMARKS;
   public static int NO_LANDMARKS = FaceDetector.NO_LANDMARKS;
+  public static int ALL_CONTOURS = FaceDetector.CONTOUR_LANDMARKS;
+  public static int NO_CONTOURS = FaceDetector.CONTOUR_LANDMARKS;
   public static int ACCURATE_MODE = FaceDetector.ACCURATE_MODE;
   public static int FAST_MODE = FaceDetector.FAST_MODE;
 
@@ -22,6 +24,7 @@ public class RNFaceDetector {
 
   private int mClassificationType = NO_CLASSIFICATIONS;
   private int mLandmarkType = NO_LANDMARKS;
+  private int mContourType = NO_CONTOURS;
   private float mMinFaceSize = 0.15f;
   private int mMode = FAST_MODE;
 
@@ -77,6 +80,13 @@ public class RNFaceDetector {
       release();
       mBuilder.setLandmarkType(landmarkType);
       mLandmarkType = landmarkType;
+    }
+  }
+
+  public void setContourType(int contourType) {
+    if (contourType != mContourType) {
+      release();
+      mContourType = contourType;
     }
   }
 
